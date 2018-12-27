@@ -23,7 +23,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
+import math
 from physics import dynamic_update, Movement2D, Vector2D, Orient2D, Pose2D, Velocity2D, Acceleration2D
 
 class Shape:
@@ -198,3 +198,7 @@ class Robot(GameObject):
         self.length = length
         self.width = width
         self.id = robot_id
+
+    @property
+    def radius(self):
+        return math.sqrt((self.length/2)**2 + (self.width/2)**2)

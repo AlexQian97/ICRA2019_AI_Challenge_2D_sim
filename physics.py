@@ -125,6 +125,15 @@ class Vector2D(Vector3D):
         v = cangle * (complex(self.x, self.y) - offset) + offset
         return Vector2D(v.real, v.imag)
 
+    def find_distance(self, another_vec):
+        if not isinstance(another_vec, Vector3D):
+            raise TypeError("Unsupport find_distance with type {:} and type {:}".format(
+                type(self), type(another_vec)
+            ))
+        return math.sqrt(
+            (another_vec.x - self.x)**2 + (another_vec.y - self.y)**2
+        )
+
 
 class Orient2D(Vector3D):
     """Orientation representation in 3-dimensional space."""

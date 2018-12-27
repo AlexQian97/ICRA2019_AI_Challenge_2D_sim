@@ -26,9 +26,11 @@
 import time
 import math
 import json
+from copy import deepcopy
 from map import Map
 from game_objects import GameObject, Wall, Robot, Zone, Polygon, Circle
 from physics import Vector2D, Vector3D, Orient2D, Pose2D, Velocity2D, Acceleration2D
+from collision_engine_2d import CollisionEngine2D, LineSegment2D, Point2D, Line2D
 
 class Game:
     """The game backgound core"""
@@ -113,10 +115,96 @@ class Game:
         """The game update logic."""
         # Update game objects
         for game_obj in self.game_objects:
+            old_pose = deepcopy(game_obj.pose)
             game_obj.update(t_interval)
 
-        # Collision check
-        # TODO:
+            if type(game_obj) is Robot: #or type(game_obj) is Bullet:
+                # Collision check
+                # TODO:
+                collision = False
+
+                for another_obj in self.game_objects:
+                    if type(another_obj) is Robot and \
+                    game_obj is not another_obj and \
+                    game_obj.pose.position.find_distance(
+                        another_obj.pose.position
+                    ) < game_obj.radius + another_obj.radius:
+                        # Collision with other robots
+                        # game_obj.moveTo(old_pose)
+                        collision = True
+                        break
+
+
+
+                    if type(another_obj) is Wall:
+                        vertex = deepcopy(another_obj.shape_set[0].vertex)
+                        coords = []
+                        for v in vertex:
+                            if collision:
+                                break
+                            new_v = v.rotate(
+                                another_obj.pose.orientation.z
+                            )
+                            new_v += another_obj.pose.position
+
+                            if new_v.find_distance(
+                                game_obj.pose.position
+                            ) < game_obj.radius:
+                                # Collision with a wall corner
+                                collision = True
+                                break
+
+                            coords.append(new_v)
+
+                        edges = []
+                        for i in range(len(coords)):
+                            if collision:
+                                break
+                            new_line = LineSegment2D(
+                                Point2D(coords[i].x, coords[i].y),
+                                Point2D(coords[(i+1)%len(coords)].x, coords[(i+1)%len(coords)].y)
+                            )
+                            edges.append(new_line)
+
+                        for edge in edges:
+                            if collision:
+                                break
+                            perpendicular_line = edge.find_perpendicular(through_point=Point2D(
+                                game_obj.pose.position.x,
+                                game_obj.pose.position.y
+                            ))
+
+                            intersetion = perpendicular_line.find_intersection(edge)
+
+                            if intersetion!=False:
+                                xmax = max(edge.point1.x, edge.point2.x)
+                                xmin = min(edge.point1.x, edge.point2.x)
+                                ymax = max(edge.point1.y, edge.point2.y)
+                                ymin = min(edge.point1.y, edge.point2.y)
+
+                                if (intersetion.x <= xmax or \
+                                math.isclose(intersetion.x, xmax, rel_tol=1e-4)) \
+                                and (intersetion.x >= xmin or \
+                                math.isclose(intersetion.x, xmin, rel_tol=1e-4)) \
+                                and (intersetion.y <= ymax or \
+                                math.isclose(intersetion.y, ymax, rel_tol=1e-4)) \
+                                and (intersetion.y >= ymin or \
+                                math.isclose(intersetion.y, ymin, rel_tol=1e-4)) :
+
+                                    if edge.find_distance(
+                                        Point2D(
+                                            game_obj.pose.position.x,
+                                            game_obj.pose.position.y
+                                        )
+                                    ) < game_obj.radius:
+
+                                        # Collision with a wall edge
+                                        collision = True
+                                        break
+
+                if collision:
+                    game_obj.moveTo(old_pose)
+
 
 
     def run(self):

@@ -1,0 +1,68 @@
+{
+  "name": "map_config",
+  "config": {
+    "map_width": 8000,
+    "map_height": 5000,
+    "wall_thickness": 250,
+    "walls": [
+      {"name": "Central obstical wall",
+        "id": 6,
+        "coords": {"x": 3500, "y": 2625},
+        "length": 1000,
+        "orientation": 0
+      }
+    ],
+    "zone_side_length": 1000,
+    "zones": [
+      {"name": "Red 1 start zone",
+        "id": "R1_start",
+        "coords": {"x": 0, "y": 1000},
+        "orientation": 0
+      },
+      {"name": "Red 2 start zone",
+        "id": "R2_start",
+        "coords": {"x": 7000, "y": 1000},
+        "orientation": 0
+      },
+      {"name": "Blue 1 start zone",
+        "id": "B1_start",
+        "coords": {"x": 0, "y": 5000},
+        "orientation": 0
+      },
+      {"name": "Blue 2 start zone",
+        "id": "B2_start",
+        "coords": {"x": 7000, "y": 5000},
+        "orientation": 0
+      },
+      {"name": "Red supply zone",
+        "id": "R_supply",
+        "coords": {"x": 3500, "y": 5000},
+        "orientation": 0
+      },
+      {"name": "Red defence zone",
+        "id": "R_defence",
+        "coords": {"x": 5800, "y": 2250},
+        "orientation": 0
+      },
+      {"name": "Blue supply zone",
+        "id": "B_supply",
+        "coords": {"x": 3500, "y": 1000},
+        "orientation": 0
+      },
+      {"name": "Blue defence zone",
+        "id": "B_defence",
+        "coords": {"x": 1200, "y": 3750},
+        "orientation": 0
+      }
+    ],
+    "robots": [
+      {"name": "Red 2",
+        "robot_id": "R2",
+        "coords": {"x": 7500, "y": 500},
+        "orientation": 180,
+        "length": 600,
+        "width": 480
+      }
+    ]
+  }
+}

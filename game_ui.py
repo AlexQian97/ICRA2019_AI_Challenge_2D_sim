@@ -37,8 +37,9 @@ class GameUI:
 
     def __init__(self, width, height=None):
         # game setting
+        # self.map_config_path = 'map_mini_config.json'
         self.map_config_path = 'map_config.json'
-        self.update_time_interval = 0.01
+        self.update_time_interval = 0.02
         self.game = Game(self.map_config_path)
 
         # tk setup
@@ -104,6 +105,10 @@ class GameUI:
         return text_id
 
     def reset(self, evt):
+        del self.game
+        self.game = Game(self.map_config_path)
+
+    def clean(self):
         self.canvas.delete("all")
 
     def real_coord_2_display_coord(self, real_coords):
@@ -157,7 +162,7 @@ class GameUI:
 
 
             elif type(obj) is Robot:
-                radius = math.sqrt((obj.length/2)**2 + (obj.width/2)**2) * self.map_scale
+                radius = obj.radius * self.map_scale
                 central = obj.pose.position
                 display_c = self.real_coord_2_display_coord(central)
                 color = '#ddd'
@@ -239,7 +244,7 @@ class GameUI:
         self.game.update(self.update_time_interval)
 
         # Clean canvas
-        self.reset(None)
+        self.clean()
 
         # Re-draw
         self.draw()
@@ -263,7 +268,7 @@ class GameUI:
         if 'l' in self.pressing_keys:
             new_angular -= math.pi
         for obj in self.game.game_objects:
-            if type(obj) is Robot and obj.id=='R1':
+            if type(obj) is Robot and obj.id=='R2':
                 obj.velocity = Velocity2D(new_v, Orient2D(new_angular))
 
         # Next update iteration
