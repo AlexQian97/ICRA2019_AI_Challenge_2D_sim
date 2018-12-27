@@ -1,0 +1,149 @@
+{
+  "name": "map_config",
+  "config": {
+    "map_width": 8000,
+    "map_height": 5000,
+    "wall_thickness": 250,
+    "walls": [
+      {"name": "North boundary wall",
+        "id": 1,
+        "coords": {"x": 0, "y": 5250},
+        "length": 8000,
+        "orientation": 0
+      },
+      {"name": "South boundary wall",
+        "id": 2,
+        "coords": {"x": 0, "y": 0},
+        "length": 8500,
+        "orientation": 0
+      },
+      {"name": "West boundary wall",
+        "id": 3,
+        "coords": {"x": -250, "y": -250},
+        "length": 5500,
+        "orientation": 90
+      },
+      {"name": "East boundary wall",
+        "id": 4,
+        "coords": {"x": 8000, "y": -250},
+        "length": 5500,
+        "orientation": 90
+      },
+      {"name": "North-West obstical wall",
+        "id": 5,
+        "coords": {"x": 1200, "y": 4000},
+        "length": 1000,
+        "orientation": 0
+      },
+      {"name": "Central obstical wall",
+        "id": 6,
+        "coords": {"x": 3500, "y": 2625},
+        "length": 1000,
+        "orientation": 0
+      },
+      {"name": "South-East obstical wall",
+        "id": 7,
+        "coords": {"x": 5800, "y": 1250},
+        "length": 1000,
+        "orientation": 0
+      },
+      {"name": "South-West obstical wall",
+        "id": 8,
+        "coords": {"x": 1400, "y": 1400},
+        "length": 1000,
+        "orientation": 90
+      },
+      {"name": "North-East obstical wall",
+        "id": 9,
+        "coords": {"x": 6350, "y": 2600},
+        "length": 1000,
+        "orientation": 90
+      },
+      {"name": "South obstical wall",
+        "id": 10,
+        "coords": {"x": 3250, "y": 0},
+        "length": 1000,
+        "orientation": 90
+      },
+      {"name": "North obstical wall",
+        "id": 11,
+        "coords": {"x": 4500, "y": 4000},
+        "length": 1000,
+        "orientation": 90
+      }
+    ],
+    "zone_side_length": 1000,
+    "zones": [
+      {"name": "Red 1 start zone",
+        "id": "R1_start",
+        "coords": {"x": 0, "y": 1000},
+        "orientation": 0
+      },
+      {"name": "Red 2 start zone",
+        "id": "R2_start",
+        "coords": {"x": 7000, "y": 1000},
+        "orientation": 0
+      },
+      {"name": "Blue 1 start zone",
+        "id": "B1_start",
+        "coords": {"x": 0, "y": 5000},
+        "orientation": 0
+      },
+      {"name": "Blue 2 start zone",
+        "id": "B2_start",
+        "coords": {"x": 7000, "y": 5000},
+        "orientation": 0
+      },
+      {"name": "Red supply zone",
+        "id": "R_supply",
+        "coords": {"x": 3500, "y": 5000},
+        "orientation": 0
+      },
+      {"name": "Red defence zone",
+        "id": "R_defence",
+        "coords": {"x": 5800, "y": 2250},
+        "orientation": 0
+      },
+      {"name": "Blue supply zone",
+        "id": "B_supply",
+        "coords": {"x": 3500, "y": 1000},
+        "orientation": 0
+      },
+      {"name": "Blue defence zone",
+        "id": "B_defence",
+        "coords": {"x": 1200, "y": 3750},
+        "orientation": 0
+      }
+    ],
+    "robots": [
+      {"name": "Red 1",
+        "robot_id": "R1",
+        "coords": {"x": 500, "y": 500},
+        "orientation": 0,
+        "length": 600,
+        "width": 480
+      },
+      {"name": "Red 2",
+        "robot_id": "R2",
+        "coords": {"x": 7500, "y": 500},
+        "orientation": 180,
+        "length": 600,
+        "width": 480
+      },
+      {"name": "Blue 1",
+        "robot_id": "B1",
+        "coords": {"x": 500, "y": 4500},
+        "orientation": 0,
+        "length": 600,
+        "width": 480
+      },
+      {"name": "Blue 2",
+        "robot_id": "B2",
+        "coords": {"x": 7500, "y": 4500},
+        "orientation": 180,
+        "length": 600,
+        "width": 480
+      }
+    ]
+  }
+}
