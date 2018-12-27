@@ -28,7 +28,7 @@ from tkinter import *
 import math
 from copy import deepcopy
 from physics import Vector2D, Orient2D, Velocity2D
-from game_objects import GameObject, Wall, Robot, Zone, Polygon, Circle
+from game_objects import Bullet, Wall, Robot, Zone, Polygon, Circle
 from game import Game
 
 class GameUI:
@@ -39,7 +39,7 @@ class GameUI:
         # game setting
         # self.map_config_path = 'map_mini_config.json'
         self.map_config_path = 'map_config.json'
-        self.update_time_interval = 0.02
+        self.update_time_interval = 0.03
         self.game = Game(self.map_config_path)
 
         # tk setup
@@ -82,7 +82,7 @@ class GameUI:
         self.canvas.bind_all('<KeyRelease-j>', self._on_key_release_repeat)
         self.canvas.bind_all('<KeyPress-space>', self._on_key_press_repeat)
         self.canvas.bind_all('<KeyRelease-space>', self._on_key_release_repeat)
-        # self.canvas.bind_all('<space>', self._fire)
+        self.canvas.bind_all('<space>', self._fire)
         self._has_prev_key_release = None
         self.pressing_keys = set()
 
@@ -193,19 +193,24 @@ class GameUI:
                         coords.append(new_v.y)
                     self.canvas.create_polygon(coords, fill=color, outline=color)
 
+            elif type(obj) is Bullet:
+                radius = obj.radius * self.map_scale
+                central = obj.pose.position
+                display_c = self.real_coord_2_display_coord(central)
+                if 'R' in obj.team:
+                    color = 'red'
+                if 'B' in obj.team:
+                    color = 'blue'
+                coords = [
+                    display_c.x-radius, display_c.y-radius,
+                    display_c.x+radius, display_c.y+radius,
+                ]
+                self.canvas.create_oval(coords, fill=color, outline=color)
 
 
-    # def _fire(self, event):
-    #     bullet = Ball(
-    #         self.canvas,
-    #         color=self.game_objects[0].team,
-    #         central=self.game_objects[0].pose.getRobotPoints(
-    #             ICRA_2019_ROBOT_MODEL*self.map_scale
-    #         )[-1],
-    #         # radius=17/2*self.map_scale
-    #     )
-    #     bullet.as_a_bullet(self.game_objects[0].pose, 19000*self.map_scale)
-    #     self.game_objects.append(bullet)
+
+    def _fire(self, event):
+        self.game.fire('R2')
 
 
     # Source: https://gist.github.com/vtsatskin/8e3c0c636339b2228138

@@ -28,8 +28,8 @@ import math
 import json
 from copy import deepcopy
 from map import Map
-from game_objects import GameObject, Wall, Robot, Zone, Polygon, Circle
-from physics import Vector2D, Vector3D, Orient2D, Pose2D, Velocity2D, Acceleration2D
+from game_objects import GameObject, Bullet, Wall, Robot, Zone, Polygon, Circle
+from physics import Vector2D, Vector3D, Orient2D, Pose2D, Velocity2D, Acceleration2D, Movement2D
 from collision_engine_2d import CollisionEngine2D, LineSegment2D, Point2D, Line2D
 
 class Game:
@@ -100,6 +100,26 @@ class Game:
                 )
             )
 
+    def fire(self, robot_id):
+        for obj in self.game_objects:
+            if type(obj) is Robot and obj.id==robot_id:
+                robot = obj
+
+                self.add_game_object(
+                    Bullet(
+                        pose=robot.pose + Movement2D(
+                            Vector2D(robot.radius, 0).rotate(robot.pose.orientation.z),
+                            Orient2D(0)
+                        ),
+                        velocity=Velocity2D(
+                            Vector2D(20000, 0),
+                            Orient2D(0)
+                        ),
+                        team=robot.id,
+                        radius=50
+                    )
+                )
+
 
     def add_game_object(self, obj):
         if not isinstance(obj, GameObject):
@@ -114,13 +134,14 @@ class Game:
     def update(self, t_interval):
         """The game update logic."""
         # Update game objects
+        game_obj_index = 0
+        remove_indexs = []
         for game_obj in self.game_objects:
             old_pose = deepcopy(game_obj.pose)
             game_obj.update(t_interval)
 
-            if type(game_obj) is Robot: #or type(game_obj) is Bullet:
+            if type(game_obj) is Robot:
                 # Collision check
-                # TODO:
                 collision = False
 
                 for another_obj in self.game_objects:
@@ -204,6 +225,141 @@ class Game:
 
                 if collision:
                     game_obj.moveTo(old_pose)
+
+
+            elif type(game_obj) is Bullet:
+                # Bullet collision check
+                collision = False
+
+                for another_obj in self.game_objects:
+                    if type(another_obj) is Robot and \
+                    game_obj.pose.position.find_distance(
+                        another_obj.pose.position
+                    ) < another_obj.radius:
+                        # Shot a robot
+                        # Robot health deduction TODO
+                        print("Shot robot!!!!!!!!!!!")
+                        collision = True
+                        break
+
+
+                    if type(another_obj) is Wall:
+                        vertex = deepcopy(another_obj.shape_set[0].vertex)
+                        coords = []
+                        for v in vertex:
+                            if collision:
+                                break
+                            new_v = v.rotate(
+                                another_obj.pose.orientation.z
+                            )
+                            new_v += another_obj.pose.position
+                            coords.append(new_v)
+
+                        edges = []
+                        for i in range(len(coords)):
+                            if collision:
+                                break
+                            new_line = LineSegment2D(
+                                Point2D(coords[i].x, coords[i].y),
+                                Point2D(coords[(i+1)%len(coords)].x, coords[(i+1)%len(coords)].y)
+                            )
+                            edges.append(new_line)
+
+                        for edge in edges:
+                            if collision:
+                                break
+                            # print("Point:",
+                            #     Point2D(
+                            #         game_obj.last_pose.position.x,
+                            #         game_obj.last_pose.position.y
+                            #     )
+                            # )
+                            # print("Point:",
+                            #         game_obj.last_pose.position.x,
+                            #         game_obj.last_pose.position.y
+                            # )
+                            # print("Movement:",
+                            #     Point2D(
+                            #         (game_obj.pose-game_obj.last_pose).position.x,
+                            #         (game_obj.pose-game_obj.last_pose).position.y
+                            #     )
+                            # )
+                            # print("Movement:",
+                            #         (game_obj.pose-game_obj.last_pose).position.x,
+                            #         (game_obj.pose-game_obj.last_pose).position.y
+                            # )
+                            # print("Line:", edge)
+                            # print(
+                            #     "Result:",
+                            #     CollisionEngine2D.point_line_collision(
+                            #         point=Point2D(
+                            #             game_obj.last_pose.position.x,
+                            #             game_obj.last_pose.position.y
+                            #         ),
+                            #         point_movement=Point2D(
+                            #             (game_obj.pose-game_obj.last_pose).position.x,
+                            #             (game_obj.pose-game_obj.last_pose).position.y
+                            #         ),
+                            #         line_segment=edge,
+                            #         line_segment_movement=Point2D(0, 0)
+                            #     )
+                            # )
+                            #
+                            # point=Point2D(
+                            #     game_obj.last_pose.position.x,
+                            #     game_obj.last_pose.position.y
+                            # )
+                            # point_movement=Point2D(
+                            #     (game_obj.pose-game_obj.last_pose).position.x,
+                            #     (game_obj.pose-game_obj.last_pose).position.y
+                            # )
+                            # line_segment=edge
+                            # line_segment_movement=Point2D(0, 0)
+                            # point_moving_line_seg = LineSegment2D(
+                            #     point, point+point_movement
+                            # )
+                            # intersect_point = Line2D.find_intersection(
+                            #     point_moving_line_seg,
+                            #     line_segment
+                            # )
+                            # print('point_moving_line_seg', point_moving_line_seg)
+                            # print("intersetion Line2D:", intersect_point)
+                            #
+                            # intersect_point = LineSegment2D.find_intersection(
+                            #     point_moving_line_seg,
+                            #     line_segment
+                            # )
+                            # print("intersetion LineSegment2D:", intersect_point)
+                            #
+                            # print()
+
+                            if CollisionEngine2D.point_line_collision(
+                                point=Point2D(
+                                    game_obj.last_pose.position.x,
+                                    game_obj.last_pose.position.y
+                                ),
+                                point_movement=Point2D(
+                                    round((game_obj.pose-game_obj.last_pose).position.x),
+                                    round((game_obj.pose-game_obj.last_pose).position.y)
+                                ),
+                                line_segment=edge,
+                                line_segment_movement=Point2D(0, 0)
+                            ):
+
+                                # Collision with a wall edge
+                                print("Shot wall")
+                                collision = True
+                                break
+
+                        # exit()
+
+                if collision:
+                    remove_indexs.append(game_obj_index)
+
+            game_obj_index += 1
+
+        for i in range(len(remove_indexs)-1, -1, -1):
+            self.game_objects.pop(remove_indexs[i])
 
 
 

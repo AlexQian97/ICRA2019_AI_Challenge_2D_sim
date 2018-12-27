@@ -24,6 +24,7 @@
 # SOFTWARE.
 
 import math
+from copy import deepcopy
 from physics import dynamic_update, Movement2D, Vector2D, Orient2D, Pose2D, Velocity2D, Acceleration2D
 
 class Shape:
@@ -152,6 +153,32 @@ class Zone(GameObject):
         GameObject.__init__(self, pose, velocity, acceleration, shape_set)
         self.id = zone_id
         self.side_length = side_length
+
+
+class Bullet(GameObject):
+    """Bullet in game"""
+
+    def __init__(self, pose, velocity, team, radius=17/2):
+        acceleration = Acceleration2D(
+            linear=Vector2D(0, 0),
+            angular=Orient2D(0)
+        )
+        shape_set = [
+            Circle(
+                Pose2D(
+                    Vector2D(0, 0),
+                    Orient2D(0)
+                ),
+                radius=radius
+            )
+        ]
+        GameObject.__init__(self, pose, velocity, acceleration)
+        self.radius = radius
+        self.team = team
+
+    def update(self, t_interval):
+        self.last_pose = deepcopy(self.pose)
+        GameObject.update(self, t_interval)
 
 
 class Robot(GameObject):
