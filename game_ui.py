@@ -39,7 +39,7 @@ class GameUI:
         # game setting
         # self.map_config_path = 'map_mini_config.json'
         self.map_config_path = 'map_config.json'
-        self.update_time_interval = 0.03
+        self.update_time_interval = 0.02
         self.game = Game(self.map_config_path)
 
         # tk setup
@@ -172,7 +172,12 @@ class GameUI:
                 ]
                 self.canvas.create_oval(coords, fill=color, outline=color)
 
-                color = 'black'
+                level = int(15 - obj.health * 15 / self.game.robot_top_health)
+                # color = 'black'
+                # print(level)
+                color = '#{:x}{:x}{:x}'.format(level, 0, 0)
+                if obj.health == 0:
+                    color = '#fff'
 
                 for shape_i in range(len(obj.shape_set)):
                     if shape_i>0:

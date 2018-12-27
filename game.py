@@ -54,6 +54,8 @@ class Game:
             height=map_config['config']['map_height'],
             wall_thickness=map_config['config']['wall_thickness']
         )
+        self.per_bullet_demage = map_config['config']['robot_per_bullet_demage']
+        self.robot_top_health = map_config['config']['robot_top_health']
 
         # Create zones
         for zone in map_config['config']['zones']:
@@ -96,15 +98,18 @@ class Game:
                         orientation=Orient2D(math.radians(robot['orientation']))
                     ),
                     robot['length'], robot['width'],
-                    robot['robot_id']
+                    robot['robot_id'],
+                    map_config['config']['robot_top_health'],
+                    robot['ammo']
                 )
             )
 
     def fire(self, robot_id):
         for obj in self.game_objects:
-            if type(obj) is Robot and obj.id==robot_id:
+            if type(obj) is Robot and obj.id==robot_id and obj.ammo > 0:
                 robot = obj
 
+                robot.ammo -= 1
                 self.add_game_object(
                     Bullet(
                         pose=robot.pose + Movement2D(
@@ -239,6 +244,8 @@ class Game:
                         # Shot a robot
                         # Robot health deduction TODO
                         print("Shot robot!!!!!!!!!!!")
+                        another_obj.health -= self.per_bullet_demage
+                        another_obj.health = max(another_obj.health, 0)  # Make not negtive health
                         collision = True
                         break
 

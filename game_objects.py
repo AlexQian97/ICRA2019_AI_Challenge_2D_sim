@@ -184,7 +184,7 @@ class Bullet(GameObject):
 class Robot(GameObject):
     """Wall in game"""
 
-    def __init__(self, pose, length, width, robot_id):
+    def __init__(self, pose, length, width, robot_id, health=2000, ammo=0):
         velocity = Velocity2D(
             linear=Vector2D(0, 0),
             angular=Orient2D(0)
@@ -225,6 +225,8 @@ class Robot(GameObject):
         self.length = length
         self.width = width
         self.id = robot_id
+        self.health = health
+        self.ammo = ammo
 
     @property
     def radius(self):
