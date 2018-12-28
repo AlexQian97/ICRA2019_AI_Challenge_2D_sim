@@ -274,71 +274,7 @@ class Game:
                         for edge in edges:
                             if collision:
                                 break
-                            # print("Point:",
-                            #     Point2D(
-                            #         game_obj.last_pose.position.x,
-                            #         game_obj.last_pose.position.y
-                            #     )
-                            # )
-                            # print("Point:",
-                            #         game_obj.last_pose.position.x,
-                            #         game_obj.last_pose.position.y
-                            # )
-                            # print("Movement:",
-                            #     Point2D(
-                            #         (game_obj.pose-game_obj.last_pose).position.x,
-                            #         (game_obj.pose-game_obj.last_pose).position.y
-                            #     )
-                            # )
-                            # print("Movement:",
-                            #         (game_obj.pose-game_obj.last_pose).position.x,
-                            #         (game_obj.pose-game_obj.last_pose).position.y
-                            # )
-                            # print("Line:", edge)
-                            # print(
-                            #     "Result:",
-                            #     CollisionEngine2D.point_line_collision(
-                            #         point=Point2D(
-                            #             game_obj.last_pose.position.x,
-                            #             game_obj.last_pose.position.y
-                            #         ),
-                            #         point_movement=Point2D(
-                            #             (game_obj.pose-game_obj.last_pose).position.x,
-                            #             (game_obj.pose-game_obj.last_pose).position.y
-                            #         ),
-                            #         line_segment=edge,
-                            #         line_segment_movement=Point2D(0, 0)
-                            #     )
-                            # )
-                            #
-                            # point=Point2D(
-                            #     game_obj.last_pose.position.x,
-                            #     game_obj.last_pose.position.y
-                            # )
-                            # point_movement=Point2D(
-                            #     (game_obj.pose-game_obj.last_pose).position.x,
-                            #     (game_obj.pose-game_obj.last_pose).position.y
-                            # )
-                            # line_segment=edge
-                            # line_segment_movement=Point2D(0, 0)
-                            # point_moving_line_seg = LineSegment2D(
-                            #     point, point+point_movement
-                            # )
-                            # intersect_point = Line2D.find_intersection(
-                            #     point_moving_line_seg,
-                            #     line_segment
-                            # )
-                            # print('point_moving_line_seg', point_moving_line_seg)
-                            # print("intersetion Line2D:", intersect_point)
-                            #
-                            # intersect_point = LineSegment2D.find_intersection(
-                            #     point_moving_line_seg,
-                            #     line_segment
-                            # )
-                            # print("intersetion LineSegment2D:", intersect_point)
-                            #
-                            # print()
-
+                        
                             if CollisionEngine2D.point_line_collision(
                                 point=Point2D(
                                     game_obj.last_pose.position.x,
@@ -366,14 +302,14 @@ class Game:
                     in_left_border=(zone.pose.position.x + robot.width/2 < robot.pose.position.x)
                     in_right_border=(zone.pose.position.x + zone.side_length > robot.pose.position.x + robot.width/2)
                     in_top_border=(zone.pose.position.y > robot.pose.position.y + robot.length/2)
-                    in_bottom_border=(zone.pose.position.y + robot.length/2 < robot.pose.position.y)
+                    in_bottom_border=(zone.pose.position.y - zone.side_length < robot.pose.position.y - robot.length/2)
                     print(in_left_border, in_top_border, in_right_border, in_bottom_border)
                     return in_bottom_border and in_left_border and in_right_border and in_top_border
                 # find friend robot
                 for another_obj in self.game_objects:
                     if type(another_obj) is Robot:
-
-                        print(another_obj.id, robotInZone(game_obj, another_obj))
+                        if game_obj.id == "R2_start":
+                            print(another_obj.id, robotInZone(game_obj, another_obj))
                         
 
 

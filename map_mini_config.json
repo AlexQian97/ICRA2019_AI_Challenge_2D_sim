@@ -61,7 +61,8 @@
         "coords": {"x": 7500, "y": 500},
         "orientation": 180,
         "length": 600,
-        "width": 480
+        "width": 480,
+        "ammo": 70
       }
     ],
     "robot_top_health": 2000,
