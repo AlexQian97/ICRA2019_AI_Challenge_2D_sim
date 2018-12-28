@@ -56,7 +56,6 @@ class Game:
         )
         self.per_bullet_demage = map_config['config']['robot_per_bullet_demage']
         self.robot_top_health = map_config['config']['robot_top_health']
-
         # Create zones
         for zone in map_config['config']['zones']:
             self.add_game_object(
@@ -69,7 +68,7 @@ class Game:
                         orientation=Orient2D(math.radians(zone['orientation']))
                     ),
                     map_config['config']['zone_side_length'],
-                    zone['id']
+                    zone['id'],
                 )
             )
 
@@ -359,9 +358,24 @@ class Game:
                                 break
 
                         # exit()
-
+                
                 if collision:
                     remove_indexs.append(game_obj_index)
+            elif type(game_obj) is Zone:
+                def robotInZone(zone, robot):
+                    in_left_border=(zone.pose.position.x + robot.width/2 < robot.pose.position.x)
+                    in_right_border=(zone.pose.position.x + zone.side_length > robot.pose.position.x + robot.width/2)
+                    in_top_border=(zone.pose.position.y > robot.pose.position.y + robot.length/2)
+                    in_bottom_border=(zone.pose.position.y + robot.length/2 < robot.pose.position.y)
+                    print(in_left_border, in_top_border, in_right_border, in_bottom_border)
+                    return in_bottom_border and in_left_border and in_right_border and in_top_border
+                # find friend robot
+                for another_obj in self.game_objects:
+                    if type(another_obj) is Robot:
+
+                        print(another_obj.id, robotInZone(game_obj, another_obj))
+                        
+
 
             game_obj_index += 1
 

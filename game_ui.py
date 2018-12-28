@@ -38,7 +38,7 @@ class GameUI:
     def __init__(self, width, height=None):
         # game setting
         # self.map_config_path = 'map_mini_config.json'
-        self.map_config_path = 'map_config.json'
+        self.map_config_path = 'map_mini_config.json'
         self.update_time_interval = 0.02
         self.game = Game(self.map_config_path)
 

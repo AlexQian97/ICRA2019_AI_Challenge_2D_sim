@@ -26,6 +26,7 @@
 import math
 from copy import deepcopy
 from physics import dynamic_update, Movement2D, Vector2D, Orient2D, Pose2D, Velocity2D, Acceleration2D
+from zones import ZoneMixin
 
 class Shape:
     """Base class of geometry shape"""
@@ -150,9 +151,11 @@ class Zone(GameObject):
                 ]
             )
         ]
+        team = zone_id[0] # 'R' or 'B'
         GameObject.__init__(self, pose, velocity, acceleration, shape_set)
         self.id = zone_id
         self.side_length = side_length
+        
 
 
 class Bullet(GameObject):

@@ -77,42 +77,50 @@
       {"name": "Red 1 start zone",
         "id": "R1_start",
         "coords": {"x": 0, "y": 1000},
-        "orientation": 0
+        "orientation": 0,
+        "type": "default"
       },
       {"name": "Red 2 start zone",
         "id": "R2_start",
         "coords": {"x": 7000, "y": 1000},
-        "orientation": 0
+        "orientation": 0,
+        "type": "default"
       },
       {"name": "Blue 1 start zone",
         "id": "B1_start",
         "coords": {"x": 0, "y": 5000},
-        "orientation": 0
+        "orientation": 0,
+        "type": "default"
       },
       {"name": "Blue 2 start zone",
         "id": "B2_start",
         "coords": {"x": 7000, "y": 5000},
-        "orientation": 0
+        "orientation": 0,
+        "type": "default"
       },
       {"name": "Red supply zone",
         "id": "R_supply",
         "coords": {"x": 3500, "y": 5000},
-        "orientation": 0
+        "orientation": 0,
+        "type": "supply"
       },
       {"name": "Red defence zone",
         "id": "R_defence",
         "coords": {"x": 5800, "y": 2250},
-        "orientation": 0
+        "orientation": 0,
+        "type": "defence"
       },
       {"name": "Blue supply zone",
         "id": "B_supply",
         "coords": {"x": 3500, "y": 1000},
-        "orientation": 0
+        "orientation": 0,
+        "type": "supply"
       },
       {"name": "Blue defence zone",
         "id": "B_defence",
         "coords": {"x": 1200, "y": 3750},
-        "orientation": 0
+        "orientation": 0,
+        "type": "defence"
       }
     ],
     "robot_top_health": 2000,

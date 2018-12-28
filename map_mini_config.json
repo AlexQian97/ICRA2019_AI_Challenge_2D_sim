@@ -63,6 +63,8 @@
         "length": 600,
         "width": 480
       }
-    ]
+    ],
+    "robot_top_health": 2000,
+    "robot_per_bullet_demage": 50
   }
 }
