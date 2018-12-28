@@ -124,7 +124,7 @@
         "orientation": 0,
         "length": 600,
         "width": 480,
-        "ammo": 0
+        "ammo": 70
       },
       {"name": "Red 2",
         "robot_id": "R2",
@@ -132,7 +132,7 @@
         "orientation": 180,
         "length": 600,
         "width": 480,
-        "ammo": 50
+        "ammo": 70
       },
       {"name": "Blue 1",
         "robot_id": "B1",
@@ -140,7 +140,7 @@
         "orientation": 0,
         "length": 600,
         "width": 480,
-        "ammo": 50
+        "ammo": 70
       },
       {"name": "Blue 2",
         "robot_id": "B2",
@@ -148,7 +148,7 @@
         "orientation": 180,
         "length": 600,
         "width": 480,
-        "ammo": 0
+        "ammo": 70
       }
     ]
   }

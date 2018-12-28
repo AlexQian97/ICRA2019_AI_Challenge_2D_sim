@@ -68,21 +68,47 @@ class GameUI:
 
         # Keys
         self.canvas.bind_all('r', self.reset)
-        self.canvas.bind_all('<KeyPress-a>', self._on_key_press_repeat)
-        self.canvas.bind_all('<KeyRelease-a>', self._on_key_release_repeat)
-        self.canvas.bind_all('<KeyPress-w>', self._on_key_press_repeat)
-        self.canvas.bind_all('<KeyRelease-w>', self._on_key_release_repeat)
-        self.canvas.bind_all('<KeyPress-s>', self._on_key_press_repeat)
-        self.canvas.bind_all('<KeyRelease-s>', self._on_key_release_repeat)
-        self.canvas.bind_all('<KeyPress-d>', self._on_key_press_repeat)
-        self.canvas.bind_all('<KeyRelease-d>', self._on_key_release_repeat)
-        self.canvas.bind_all('<KeyPress-l>', self._on_key_press_repeat)
-        self.canvas.bind_all('<KeyRelease-l>', self._on_key_release_repeat)
-        self.canvas.bind_all('<KeyPress-j>', self._on_key_press_repeat)
-        self.canvas.bind_all('<KeyRelease-j>', self._on_key_release_repeat)
-        self.canvas.bind_all('<KeyPress-space>', self._on_key_press_repeat)
-        self.canvas.bind_all('<KeyRelease-space>', self._on_key_release_repeat)
-        self.canvas.bind_all('<space>', self._fire)
+
+        self.key_dict = {"R1": ['2', 'w', 'q', 'e', '1', '3', '0'],
+                         "R2": ['5', 't', 'r', 'y', '4', '6', 'p'],
+                         "B1": ['s', 'x', 'z', 'c', 'a', 'd', 'l'],
+                         "B2": ['g', 'b', 'v', 'n', 'f', 'h', 'm']}
+
+        for key, value in self.key_dict.items():
+            for char in value[:-1]:
+                self.canvas.bind_all('<KeyPress-' + char + '>', self._on_key_press_repeat)
+                self.canvas.bind_all('<KeyRelease-' + char + '>', self._on_key_release_repeat)
+
+        self.canvas.bind_all('<0>', self._fire1)
+        self.canvas.bind_all('<p>', self._fire2)
+        self.canvas.bind_all('<l>', self._fire3)
+        self.canvas.bind_all('<m>', self._fire4)
+
+        # self.canvas.bind_all('<KeyPress-a>', self._on_key_press_repeat)
+        # self.canvas.bind_all('<KeyRelease-a>', self._on_key_release_repeat)
+        # self.canvas.bind_all('<KeyPress-1>', self._on_key_press_repeat)
+        # self.canvas.bind_all('<KeyRelease-1>', self._on_key_release_repeat)
+        # self.canvas.bind_all('<KeyPress-s>', self._on_key_press_repeat)
+        # self.canvas.bind_all('<KeyRelease-s>', self._on_key_release_repeat)
+        # self.canvas.bind_all('<KeyPress-d>', self._on_key_press_repeat)
+        # self.canvas.bind_all('<KeyRelease-d>', self._on_key_release_repeat)
+        # self.canvas.bind_all('<KeyPress-l>', self._on_key_press_repeat)
+        # self.canvas.bind_all('<KeyRelease-l>', self._on_key_release_repeat)
+        # self.canvas.bind_all('<KeyPress-j>', self._on_key_press_repeat)
+        # self.canvas.bind_all('<KeyRelease-j>', self._on_key_release_repeat)
+        # # self.canvas.bind_all('<KeyPress-space>', self._on_key_press_repeat)
+        # # self.canvas.bind_all('<KeyRelease-space>', self._on_key_release_repeat)
+        # self.canvas.bind_all('<x>', self._fire2)
+        #
+        # self.canvas.bind_all('<KeyPress-f>', self._on_key_press_repeat)
+        # self.canvas.bind_all('<KeyRelease-f>', self._on_key_release_repeat)
+        # self.canvas.bind_all('<KeyPress-t>', self._on_key_press_repeat)
+        # self.canvas.bind_all('<KeyRelease-t>', self._on_key_release_repeat)
+        # self.canvas.bind_all('<KeyPress-g>', self._on_key_press_repeat)
+        # self.canvas.bind_all('<KeyRelease-g>', self._on_key_release_repeat)
+        # self.canvas.bind_all('<KeyPress-h>', self._on_key_press_repeat)
+        # self.canvas.bind_all('<KeyReleimport mathase-h>', self._on_key_release_repeat)
+        # self.canvas.bind_all('<Down>', self._fire3)
         self._has_prev_key_release = None
         self.pressing_keys = set()
 
@@ -214,8 +240,17 @@ class GameUI:
 
 
 
-    def _fire(self, event):
+    def _fire1(self, event):
+        self.game.fire('R1')
+
+    def _fire2(self, event):
         self.game.fire('R2')
+
+    def _fire3(self, event):
+        self.game.fire('B1')
+
+    def _fire4(self, event):
+        self.game.fire('B2')
 
 
     # Source: https://gist.github.com/vtsatskin/8e3c0c636339b2228138
@@ -263,23 +298,42 @@ class GameUI:
         self.debug_text_id = self.show_debug_text(
             self.debug_text_id, str(self.pressing_keys)
         )
-        new_v = Vector2D(0, 0)
-        new_angular = 0
-        if 'w' in self.pressing_keys:
-            new_v.x += 1000
-        if 's' in self.pressing_keys:
-            new_v.x -= 1000
-        if 'a' in self.pressing_keys:
-            new_v.y += 1000
-        if 'd' in self.pressing_keys:
-            new_v.y -= 1000
-        if 'j' in self.pressing_keys:
-            new_angular += math.pi
-        if 'l' in self.pressing_keys:
-            new_angular -= math.pi
-        for obj in self.game.game_objects:
-            if type(obj) is Robot and obj.id=='R2':
-                obj.velocity = Velocity2D(new_v, Orient2D(new_angular))
+        for key, value in self.key_dict.items():
+            new_v = Vector2D(0, 0)
+            new_angular = 0
+            if value[0] in self.pressing_keys:
+                new_v.x += 1000
+            if value[1] in self.pressing_keys:
+                new_v.x -= 1000
+            if value[2] in self.pressing_keys:
+                new_v.y += 1000
+            if value[3] in self.pressing_keys:
+                new_v.y -= 1000
+            if value[4] in self.pressing_keys:
+                new_angular += math.pi
+            if value[5] in self.pressing_keys:
+                new_angular -= math.pi
+            for obj in self.game.game_objects:
+                if type(obj) is Robot and obj.id==key:
+                    obj.velocity = Velocity2D(new_v, Orient2D(new_angular))
+
+        # new_v = Vector2D(0, 0)
+        # new_angular = 0
+        # if 'w' in self.pressing_keys:
+        #     new_v.x += 1000
+        # if 's' in self.pressing_keys:
+        #     new_v.x -= 1000
+        # if 'a' in self.pressing_keys:
+        #     new_v.y += 1000
+        # if 'd' in self.pressing_keys:
+        #     new_v.y -= 1000
+        # if 'j' in self.pressing_keys:
+        #     new_angular += math.pi
+        # if 'l' in self.pressing_keys:
+        #     new_angular -= math.pi
+        # for obj in self.game.game_objects:
+        #     if type(obj) is Robot and obj.id=='R2':
+        #         obj.velocity = Velocity2D(new_v, Orient2D(new_angular))
 
         # Next update iteration
         self.canvas.after(int(self.update_time_interval*1000), self.update)
