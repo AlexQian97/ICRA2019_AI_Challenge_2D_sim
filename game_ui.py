@@ -35,6 +35,12 @@ class GameUI:
     font = ('calibri', 50)
     font_color = "#ddd"
 
+    robot_body_color = "#000"
+    health_color_red = "#ff6d6d"
+    health_color_blue = "#3fccff"
+
+    zone_color_red = "#db0000"
+    zone_color_blue = "#0028ba"
     def __init__(self, width, height=None):
         # game setting
         # self.map_config_path = 'map_mini_config.json'
@@ -163,9 +169,9 @@ class GameUI:
 
             elif type(obj) is Zone:
                 if 'R' in obj.id:
-                    color = 'red'
+                    color = self.zone_color_red
                 elif 'B' in obj.id:
-                    color = 'blue'
+                    color = self.zone_color_blue
 
                 vertex = deepcopy(obj.shape_set[0].vertex)
                 vertex[0]+=Vector2D(obj.side_length*0.02, -obj.side_length*0.02)
@@ -188,20 +194,39 @@ class GameUI:
 
 
             elif type(obj) is Robot:
+
+                def draw_healthbar(robot_coords):
+                    self.canvas.create_rectangle(robot_coords, fill="#bbb")
+                    full_length = (robot_coords[2] - 3) - (robot_coords[0] + 3)
+                    actual_length = (obj.health / self.game.robot_top_health) * full_length
+                    health_coords = [
+                        robot_coords[0] + 3, robot_coords[1] + 3,
+                        robot_coords[0] + 3 + actual_length, robot_coords[3] - 3
+                    ]
+                    if obj.id[0] == 'R':
+                        color = self.health_color_red
+                    else:
+                        color = self.health_color_blue
+                    if actual_length > 0:
+                        self.canvas.create_rectangle(health_coords, fill=color, outline=None)
+                    
                 radius = obj.radius * self.map_scale
                 central = obj.pose.position
                 display_c = self.real_coord_2_display_coord(central)
                 color = '#ddd'
                 coords = [
                     display_c.x-radius, display_c.y-radius,
-                    display_c.x+radius, display_c.y+radius,
+                    display_c.x+radius, display_c.y+radius
+                ]
+
+                healthbar_coords = [
+                    coords[0], coords[1] - 5,
+                    coords[2], coords[1] + 15
                 ]
                 self.canvas.create_oval(coords, fill=color, outline=color)
+                
+                color = self.robot_body_color
 
-                level = int(15 - obj.health * 15 / self.game.robot_top_health)
-                # color = 'black'
-                # print(level)
-                color = '#{:x}{:x}{:x}'.format(level, 0, 0)
                 if obj.health == 0:
                     color = '#fff'
 
@@ -223,6 +248,8 @@ class GameUI:
                         coords.append(new_v.x)
                         coords.append(new_v.y)
                     self.canvas.create_polygon(coords, fill=color, outline=color)
+
+                draw_healthbar(healthbar_coords)
 
             elif type(obj) is Bullet:
                 radius = obj.radius * self.map_scale

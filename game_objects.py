@@ -310,11 +310,13 @@ class Robot(GameObject):
     
     def update(self, t_interval=0.02):
         super(Robot, self).update(t_interval)
-        now = time.time()
-        if self.cancelled_damage != 0 and now - self.defence_buff_timer > 30:
-            print("buff ends!")
-            self.defence_buff_timer = now
-            self.cancelled_damage = 0
+       
+        if self.cancelled_damage != 0:
+            now = time.time()
+            if now - self.defence_buff_timer > 30: 
+                print("buff ends!")
+                self.defence_buff_timer = now
+                self.cancelled_damage = 0
 
 
     @property
