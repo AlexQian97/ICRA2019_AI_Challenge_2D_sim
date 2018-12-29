@@ -104,11 +104,11 @@
         "orientation": 0,
         "type": "supply"
       },
-      {"name": "Red defence zone",
-        "id": "R_defence",
+      {"name": "Red defense zone",
+        "id": "R_defense",
         "coords": {"x": 5800, "y": 2250},
         "orientation": 0,
-        "type": "defence"
+        "type": "defense"
       },
       {"name": "Blue supply zone",
         "id": "B_supply",
@@ -116,16 +116,16 @@
         "orientation": 0,
         "type": "supply"
       },
-      {"name": "Blue defence zone",
-        "id": "B_defence",
+      {"name": "Blue defense zone",
+        "id": "B_defense",
         "coords": {"x": 1200, "y": 3750},
         "orientation": 0,
-        "type": "defence"
+        "type": "defense"
       }
     ],
     "robot_top_health": 2000,
     "robot_per_bullet_demage": 50,
-    "robot_defence": 25,
+    "robot_defense": 25,
     "robots": [
       {"name": "Red 1",
         "robot_id": "R1",

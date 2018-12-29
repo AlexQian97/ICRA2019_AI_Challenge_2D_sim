@@ -101,7 +101,7 @@ class Game:
                     robot['robot_id'],
                     map_config['config']['robot_top_health'],
                     robot['ammo'],
-                    map_config['config']['robot_defence']
+                    map_config['config']['robot_defense']
                 )
             )
 
@@ -305,7 +305,7 @@ class Game:
                 for another_obj in self.game_objects:
                     if type(another_obj) is Robot:
 
-                        if zone.type == 'defence':
+                        if zone.type == 'defense':
                             zone.handle_as_defense_zone(another_obj, t_interval)
                         # elif zone.type == 'supply':
                         #     zone.handle_as_supply_zone(another_obj)

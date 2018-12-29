@@ -191,7 +191,7 @@ class Zone(GameObject):
             # print(self.buff_timer)
             if self.buff_timer > 5 and self.buff_ready > 0:
                 print("\n### waited for 5 seconds.\n")
-                self.robot.start_buff_defence()
+                self.robot.start_buff_defense()
                 self.buff_ready -= 1
                 self.buff_timer = 0
         elif self.robot is None or robot.id == self.robot.id:
@@ -228,7 +228,7 @@ class Bullet(GameObject):
 class Robot(GameObject):
     """Wall in game"""
 
-    def __init__(self, pose, length, width, robot_id, health=2000, ammo=0, defence=25):
+    def __init__(self, pose, length, width, robot_id, health=2000, ammo=0, defense=25):
         velocity = Velocity2D(
             linear=Vector2D(0, 0),
             angular=Orient2D(0)
@@ -271,18 +271,18 @@ class Robot(GameObject):
         self.id = robot_id
         self.health = health
         self.cancelled_damage = 0
-        self.defence = defence
+        self.defense = defense
         self.ammo = ammo
 
         self.buff_timer = 0
         
-    def start_buff_defence(self):
-        self.cancelled_damage = self.defence
+    def start_buff_defense(self):
+        self.cancelled_damage = self.defense
         print("buff start!")
     
     def update(self, t_interval=0.02):
         super(Robot, self).update(t_interval)
-        if self.cancelled_damage != 0: # in defence buff
+        if self.cancelled_damage != 0: # in defense buff
             self.buff_timer += t_interval
         
         if self.buff_timer > 5:
