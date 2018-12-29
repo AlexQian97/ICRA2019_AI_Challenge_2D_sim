@@ -26,6 +26,7 @@
 import math
 from copy import deepcopy
 from physics import dynamic_update, Movement2D, Vector2D, Orient2D, Pose2D, Velocity2D, Acceleration2D
+import time
 
 class Shape:
     """Base class of geometry shape"""
@@ -160,9 +161,10 @@ class Zone(GameObject):
         self.side_length = side_length
         self.type = zone_type
 
-        self.clock = 0
-        self.defense_buff_timer = 0
-        self.defense_buff_ready = 1
+        now = time.time()
+        self.clock = now
+        self.defence_buff_timer = now
+        self.defence_buff_ready = 1
 
         self.supply_times_ready = 2
         self.added_ammo = False
@@ -183,30 +185,28 @@ class Zone(GameObject):
         
     
     def update_clock_and_buffs(self, t_interval):
-        self.clock += t_interval
-
-        if self.clock != 0 and self.clock > 60:
-            self.clock = 0
-            self.defense_buff_ready = 1
+        now = time.time()
+        if now - self.clock > 60:
+            self.clock = now
+            self.defence_buff_ready = 1
             self.supply_times_ready = 2
-            print("buffs and supply refreshed.\nbuff: defense")
+            print("zone:<{}> buffs and supply refreshed.\n".format(self.id))
 
     def is_friendly(self, robot):
         return robot.id[0] == self.team
 
-    def handle_as_defense_zone(self, robot, t_interval):
+    def handle_as_defence_zone(self, robot, t_interval):
+        now = time.time()
         if self.is_robot_inside(robot) and self.is_friendly(robot):
             self.robot = robot
-            self.defense_buff_timer += t_interval
-            # print(self.buff_timer)
-            if self.defense_buff_timer > 5 and self.defense_buff_ready > 0:
+            if now - self.defence_buff_timer > 5 and self.defence_buff_ready > 0:
                 print("\n### waited for 5 seconds.\n")
-                self.robot.start_buff_defense()
-                self.defense_buff_ready -= 1
-                self.defense_buff_timer = 0
+                self.robot.start_buff_defence()
+                self.defence_buff_ready -= 1
+                self.defence_buff_timer = now
         elif self.robot is None or robot.id == self.robot.id:
             # the robot left the self. 
-            self.defense_buff_timer = 0
+            self.defence_buff_timer = now
             self.robot = None
     
     def handle_as_supply_zone(self, robot, t_interval):
@@ -255,7 +255,7 @@ class Bullet(GameObject):
 class Robot(GameObject):
     """Wall in game"""
 
-    def __init__(self, pose, length, width, robot_id, health=2000, ammo=0, defense=25):
+    def __init__(self, pose, length, width, robot_id, health=2000, ammo=0, defence=25):
         velocity = Velocity2D(
             linear=Vector2D(0, 0),
             angular=Orient2D(0)
@@ -298,24 +298,25 @@ class Robot(GameObject):
         self.id = robot_id
         self.health = health
         self.cancelled_damage = 0
-        self.defense = defense
+        self.defence = defence
         self.ammo = ammo
 
-        self.defense_buff_timer = 0
+        self.defence_buff_timer = time.time()
         
-    def start_buff_defense(self):
-        self.cancelled_damage = self.defense
+    def start_buff_defence(self):
+        self.cancelled_damage = self.defence
+        self.defence_buff_timer = time.time()
         print("buff start!")
     
     def update(self, t_interval=0.02):
         super(Robot, self).update(t_interval)
-        if self.cancelled_damage != 0: # in defense buff
-            self.defense_buff_timer += t_interval
-        
-        if self.defense_buff_timer > 30:
-            print("buff ends!")
-            self.defense_buff_timer = 0
-            self.cancelled_damage = 0
+       
+        if self.cancelled_damage != 0:
+            now = time.time()
+            if now - self.defence_buff_timer > 30: 
+                print("buff ends!")
+                self.defence_buff_timer = now
+                self.cancelled_damage = 0
 
 
     @property
