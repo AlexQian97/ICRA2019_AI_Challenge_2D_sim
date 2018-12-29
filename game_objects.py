@@ -60,7 +60,7 @@ class GameObject:
         self.acceleration = acceleration
         self.shape_set = shape_set
 
-    def update(self, t_interval=0.05):
+    def update(self, t_interval=0.02):
         dx, vx = dynamic_update(
             self.velocity.linear.x, t_interval, self.acceleration.linear.x
         )
@@ -166,7 +166,7 @@ class Zone(GameObject):
         self.buff_ready = 1
         self.robot = None # cache the robot which is in this zone
     
-    def isRobotInside(self, robot):
+    def is_robot_inside(self, robot):
         in_left_border=(self.pose.position.x + robot.width/2 < robot.pose.position.x)
         in_right_border=(self.pose.position.x + self.side_length > robot.pose.position.x + robot.width/2)
         in_top_border=(self.pose.position.y > robot.pose.position.y + robot.length/2)
@@ -174,6 +174,30 @@ class Zone(GameObject):
         
         return in_bottom_border and in_left_border and in_right_border and in_top_border
     
+    def update(self, t_interval=0.02):
+        super(Zone, self).update(t_interval)
+
+        self.timer += t_interval
+    
+    def refresh_timer_and_buffs(self):
+        if self.timer != 0 and self.timer > 60:
+            self.timer = 0
+            self.buff_ready += 1
+
+    def handle_as_defense_zone(self, robot, t_interval):
+        if self.is_robot_inside(robot):
+            self.robot = robot
+            self.buff_timer += t_interval
+            # print(self.buff_timer)
+            if self.buff_timer > 5 and self.buff_ready > 0:
+                print("\n### waited for 5 seconds.\n")
+                self.robot.start_buff_defence()
+                self.buff_ready -= 1
+                self.buff_timer = 0
+        elif self.robot is None or robot.id == self.robot.id:
+            # the robot left the self. 
+            self.buff_timer = 0
+
 
 class Bullet(GameObject):
     """Bullet in game"""
@@ -256,7 +280,7 @@ class Robot(GameObject):
         self.cancelled_damage = self.defence
         print("buff start!")
     
-    def update(self, t_interval=0.05):
+    def update(self, t_interval=0.02):
         super(Robot, self).update(t_interval)
         if self.cancelled_damage != 0: # in defence buff
             self.buff_timer += t_interval

@@ -300,29 +300,17 @@ class Game:
                     remove_indexs.append(game_obj_index)
             elif type(game_obj) is Zone:
                 zone = game_obj
-                if zone.type == 'defence':
-                    zone.timer += t_interval
-                    if zone.timer != 0 and zone.timer > 60:
-                        zone.timer = 0
-                        zone.buff_ready += 1
+                zone.refresh_timer_and_buffs()                     
                 # find friend robot
                 for another_obj in self.game_objects:
-                    if type(another_obj) is Robot and \
-                        zone.type == 'defence':
-                        
-                        if zone.isRobotInside(another_obj):
-                            zone.robot = another_obj
-                            zone.buff_timer += t_interval
-                            # print(zone.buff_timer)
-                            if zone.buff_timer > 5 and zone.buff_ready > 0:
-                                print("\n### waited for 5 seconds.\n")
-                                zone.robot.start_buff_defence()
-                                zone.buff_ready -= 1
-                                zone.buff_timer = 0
-                        else:
-                            if zone.robot is None or another_obj.id == zone.robot.id:
-                                zone.buff_timer = 0
-                        
+                    if type(another_obj) is Robot:
+
+                        if zone.type == 'defence':
+                            zone.handle_as_defense_zone(another_obj, t_interval)
+                        # elif zone.type == 'supply':
+                        #     zone.handle_as_supply_zone(another_obj)
+                    
+
 
 
             game_obj_index += 1
