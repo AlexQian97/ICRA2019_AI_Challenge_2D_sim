@@ -31,7 +31,7 @@ from zones import ZoneMixin
 class Shape:
     """Base class of geometry shape"""
     def __init__(self, pose, type=[]):
-        self.pose = pose, t_interval
+        self.pose = pose
         self.type = type
 
 
@@ -160,8 +160,10 @@ class Zone(GameObject):
         self.id = zone_id
         self.side_length = side_length
         self.type = zone_type
-        self.timer = 0, t_interval
+        self.timer = 0
+        self.buff_timer = 0
         
+        self.buff_ready = 1
         self.robot = None # cache the robot which is in this zone
     
     def isRobotInside(self, robot):
@@ -202,7 +204,7 @@ class Bullet(GameObject):
 class Robot(GameObject):
     """Wall in game"""
 
-    def __init__(self, pose, length, width, robot_id, health=2000, ammo=0, defence):
+    def __init__(self, pose, length, width, robot_id, health=2000, ammo=0, defence=25):
         velocity = Velocity2D(
             linear=Vector2D(0, 0),
             angular=Orient2D(0)
@@ -250,10 +252,20 @@ class Robot(GameObject):
 
         self.buff_timer = 0
         
-    def buff_defence(self):
-        if buff_timer < 30:
-            
+    def start_buff_defence(self):
         self.cancelled_damage = self.defence
+        print("buff start!")
+    
+    def update(self, t_interval=0.05):
+        super(Robot, self).update(t_interval)
+        if self.cancelled_damage != 0: # in defence buff
+            self.buff_timer += t_interval
+        
+        if self.buff_timer > 5:
+            print("buff ends!")
+            self.buff_timer = 0
+            self.cancelled_damage = 0
+
 
     @property
     def radius(self):

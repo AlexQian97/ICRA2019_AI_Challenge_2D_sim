@@ -243,8 +243,8 @@ class Game:
                     ) < another_obj.radius:
                         # Shot a robot
                         # Robot health deduction TODO
-                        print("Shot robot!!!!!!!!!!!")
-                        another_obj.health -= self.per_bullet_demage * another_obj.bulletproof_ratio
+                        print("Shot robot, damage: {}".format(self.per_bullet_demage - another_obj.cancelled_damage))
+                        another_obj.health -= (self.per_bullet_demage - another_obj.cancelled_damage)
                         another_obj.health = max(another_obj.health, 0)  # Make not negtive health
                         collision = True
                         break
@@ -299,19 +299,12 @@ class Game:
                 if collision:
                     remove_indexs.append(game_obj_index)
             elif type(game_obj) is Zone:
-                def robotInZone(zone, robot):
-                    if robot is None: 
-                        return False
-
-                    in_left_border=(zone.pose.position.x + robot.width/2 < robot.pose.position.x)
-                    in_right_border=(zone.pose.position.x + zone.side_length > robot.pose.position.x + robot.width/2)
-                    in_top_border=(zone.pose.position.y > robot.pose.position.y + robot.length/2)
-                    in_bottom_border=(zone.pose.position.y - zone.side_length < robot.pose.position.y - robot.length/2)
-                    # print(in_left_border, in_top_border, in_right_border, in_bottom_border)
-                    return in_bottom_border and in_left_border and in_right_border and in_top_border
-                
                 zone = game_obj
-
+                if zone.type == 'defence':
+                    zone.timer += t_interval
+                    if zone.timer != 0 and zone.timer > 60:
+                        zone.timer = 0
+                        zone.buff_ready += 1
                 # find friend robot
                 for another_obj in self.game_objects:
                     if type(another_obj) is Robot and \
@@ -319,14 +312,16 @@ class Game:
                         
                         if zone.isRobotInside(another_obj):
                             zone.robot = another_obj
-                            zone.timer = zone.timer + t_interval
-                            print(zone.timer)
-                            if zone.timer > 5:
-                                print("\n\n\n      5 seconds reached \n\n\n")
-                                zone.robot.buff_defence()
+                            zone.buff_timer += t_interval
+                            # print(zone.buff_timer)
+                            if zone.buff_timer > 5 and zone.buff_ready > 0:
+                                print("\n### waited for 5 seconds.\n")
+                                zone.robot.start_buff_defence()
+                                zone.buff_ready -= 1
+                                zone.buff_timer = 0
                         else:
                             if zone.robot is None or another_obj.id == zone.robot.id:
-                                zone.timer = 0
+                                zone.buff_timer = 0
                         
 
 
