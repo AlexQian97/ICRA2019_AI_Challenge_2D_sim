@@ -38,7 +38,7 @@ class GameUI:
     def __init__(self, width, height=None):
         # game setting
         # self.map_config_path = 'map_mini_config.json'
-        self.map_config_path = 'map_mini_config.json'
+        self.map_config_path = 'map_config.json'
         self.update_time_interval = 0.02
         self.game = Game(self.map_config_path)
 
@@ -85,7 +85,7 @@ class GameUI:
         self.canvas.bind_all('<m>', self._fire4)
 
         # self.canvas.bind_all('<KeyPress-a>', self._on_key_press_repeat)
-        # self.canvas.bind_all('<KeyRelease-a>', self._on_key_release_repeat)
+        # self.canvas.bind_all('<KeyRelease-if game_obj.id == "R2_start":
         # self.canvas.bind_all('<KeyPress-1>', self._on_key_press_repeat)
         # self.canvas.bind_all('<KeyRelease-1>', self._on_key_release_repeat)
         # self.canvas.bind_all('<KeyPress-s>', self._on_key_press_repeat)

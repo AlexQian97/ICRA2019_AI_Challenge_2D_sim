@@ -69,6 +69,7 @@ class Game:
                     ),
                     map_config['config']['zone_side_length'],
                     zone['id'],
+                    zone['type']
                 )
             )
 
@@ -99,7 +100,8 @@ class Game:
                     robot['length'], robot['width'],
                     robot['robot_id'],
                     map_config['config']['robot_top_health'],
-                    robot['ammo']
+                    robot['ammo'],
+                    map_config['config']['robot_defence']
                 )
             )
 
@@ -123,7 +125,6 @@ class Game:
                         radius=50
                     )
                 )
-
 
     def add_game_object(self, obj):
         if not isinstance(obj, GameObject):
@@ -243,7 +244,7 @@ class Game:
                         # Shot a robot
                         # Robot health deduction TODO
                         print("Shot robot!!!!!!!!!!!")
-                        another_obj.health -= self.per_bullet_demage
+                        another_obj.health -= self.per_bullet_demage * another_obj.bulletproof_ratio
                         another_obj.health = max(another_obj.health, 0)  # Make not negtive health
                         collision = True
                         break
@@ -299,17 +300,33 @@ class Game:
                     remove_indexs.append(game_obj_index)
             elif type(game_obj) is Zone:
                 def robotInZone(zone, robot):
+                    if robot is None: 
+                        return False
+
                     in_left_border=(zone.pose.position.x + robot.width/2 < robot.pose.position.x)
                     in_right_border=(zone.pose.position.x + zone.side_length > robot.pose.position.x + robot.width/2)
                     in_top_border=(zone.pose.position.y > robot.pose.position.y + robot.length/2)
                     in_bottom_border=(zone.pose.position.y - zone.side_length < robot.pose.position.y - robot.length/2)
-                    print(in_left_border, in_top_border, in_right_border, in_bottom_border)
+                    # print(in_left_border, in_top_border, in_right_border, in_bottom_border)
                     return in_bottom_border and in_left_border and in_right_border and in_top_border
+                
+                zone = game_obj
+
                 # find friend robot
                 for another_obj in self.game_objects:
-                    if type(another_obj) is Robot:
-                        if game_obj.id == "R2_start":
-                            print(another_obj.id, robotInZone(game_obj, another_obj))
+                    if type(another_obj) is Robot and \
+                        zone.type == 'defence':
+                        
+                        if zone.isRobotInside(another_obj):
+                            zone.robot = another_obj
+                            zone.timer = zone.timer + t_interval
+                            print(zone.timer)
+                            if zone.timer > 5:
+                                print("\n\n\n      5 seconds reached \n\n\n")
+                                zone.robot.buff_defence()
+                        else:
+                            if zone.robot is None or another_obj.id == zone.robot.id:
+                                zone.timer = 0
                         
 
 

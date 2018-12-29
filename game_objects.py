@@ -31,7 +31,7 @@ from zones import ZoneMixin
 class Shape:
     """Base class of geometry shape"""
     def __init__(self, pose, type=[]):
-        self.pose = pose
+        self.pose = pose, t_interval
         self.type = type
 
 
@@ -128,7 +128,7 @@ class Wall(GameObject):
 class Zone(GameObject):
     """Zone in game"""
 
-    def __init__(self, pose, side_length, zone_id):
+    def __init__(self, pose, side_length, zone_id, zone_type):
         velocity = Velocity2D(
             linear=Vector2D(0, 0),
             angular=Orient2D(0)
@@ -151,12 +151,27 @@ class Zone(GameObject):
                 ]
             )
         ]
-        team = zone_id[0] # 'R' or 'B'
+        zone_team = zone_id[0] # 'R' or 'B'
+
         GameObject.__init__(self, pose, velocity, acceleration, shape_set)
+        # ZoneMixin.__init__(self, zone_type, zone_team)
+        self.type = zone_type
+        self.team = zone_team 
         self.id = zone_id
         self.side_length = side_length
+        self.type = zone_type
+        self.timer = 0, t_interval
         
-
+        self.robot = None # cache the robot which is in this zone
+    
+    def isRobotInside(self, robot):
+        in_left_border=(self.pose.position.x + robot.width/2 < robot.pose.position.x)
+        in_right_border=(self.pose.position.x + self.side_length > robot.pose.position.x + robot.width/2)
+        in_top_border=(self.pose.position.y > robot.pose.position.y + robot.length/2)
+        in_bottom_border=(self.pose.position.y - self.side_length < robot.pose.position.y - robot.length/2)
+        
+        return in_bottom_border and in_left_border and in_right_border and in_top_border
+    
 
 class Bullet(GameObject):
     """Bullet in game"""
@@ -187,7 +202,7 @@ class Bullet(GameObject):
 class Robot(GameObject):
     """Wall in game"""
 
-    def __init__(self, pose, length, width, robot_id, health=2000, ammo=0):
+    def __init__(self, pose, length, width, robot_id, health=2000, ammo=0, defence):
         velocity = Velocity2D(
             linear=Vector2D(0, 0),
             angular=Orient2D(0)
@@ -229,7 +244,16 @@ class Robot(GameObject):
         self.width = width
         self.id = robot_id
         self.health = health
+        self.cancelled_damage = 0
+        self.defence = defence
         self.ammo = ammo
+
+        self.buff_timer = 0
+        
+    def buff_defence(self):
+        if buff_timer < 30:
+            
+        self.cancelled_damage = self.defence
 
     @property
     def radius(self):
