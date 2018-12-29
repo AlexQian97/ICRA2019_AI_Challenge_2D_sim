@@ -160,10 +160,12 @@ class Zone(GameObject):
         self.id = zone_id
         self.side_length = side_length
         self.type = zone_type
-        self.timer = 0
-        self.buff_timer = 0
-        
-        self.buff_ready = 1
+
+        self.clock = 0
+        self.defense_buff_timer = 0
+        self.defense_buff_ready = 1
+
+        self.supply_times_ready = 2
         self.robot = None # cache the robot which is in this zone
     
     def is_robot_inside(self, robot):
@@ -177,26 +179,41 @@ class Zone(GameObject):
     def update(self, t_interval=0.02):
         super(Zone, self).update(t_interval)
 
-        self.timer += t_interval
+        self.update_clock_and_buffs(t_interval)
+        
     
-    def refresh_timer_and_buffs(self):
-        if self.timer != 0 and self.timer > 60:
-            self.timer = 0
-            self.buff_ready += 1
+    def update_clock_and_buffs(self, t_interval):
+        self.clock += t_interval
+
+        if self.clock != 0 and self.clock > 60:
+            self.clock = 0
+            self.defense_buff_ready += 1
+            self.supply_times_ready = 2
+            print("buffs and supply refreshed.\nbuff: defense")
 
     def handle_as_defense_zone(self, robot, t_interval):
         if self.is_robot_inside(robot):
             self.robot = robot
-            self.buff_timer += t_interval
+            self.defense_buff_timer += t_interval
             # print(self.buff_timer)
-            if self.buff_timer > 5 and self.buff_ready > 0:
+            if self.defense_buff_timer > 5 and self.defense_buff_ready > 0:
                 print("\n### waited for 5 seconds.\n")
                 self.robot.start_buff_defense()
-                self.buff_ready -= 1
-                self.buff_timer = 0
+                self.defense_buff_ready -= 1
+                self.defense_buff_timer = 0
         elif self.robot is None or robot.id == self.robot.id:
             # the robot left the self. 
-            self.buff_timer = 0
+            self.defense_buff_timer = 0
+    
+    def handle_as_supply_zone(self, robot, t_interval):
+        if self.is_robot_inside(robot):
+            if self.supply_times_ready > 0:
+                print("\n### adding ammo to <{}>\n".format(robot.id))
+                self.supply_times_ready -= 1
+                robot.ammo += 50
+            else:
+                print("\n### no more ammo to supply.\n")
+
 
 
 class Bullet(GameObject):
@@ -274,7 +291,7 @@ class Robot(GameObject):
         self.defense = defense
         self.ammo = ammo
 
-        self.buff_timer = 0
+        self.defense_buff_timer = 0
         
     def start_buff_defense(self):
         self.cancelled_damage = self.defense
@@ -283,11 +300,11 @@ class Robot(GameObject):
     def update(self, t_interval=0.02):
         super(Robot, self).update(t_interval)
         if self.cancelled_damage != 0: # in defense buff
-            self.buff_timer += t_interval
+            self.defense_buff_timer += t_interval
         
-        if self.buff_timer > 5:
+        if self.defense_buff_timer > 30:
             print("buff ends!")
-            self.buff_timer = 0
+            self.defense_buff_timer = 0
             self.cancelled_damage = 0
 
 
