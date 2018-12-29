@@ -59,7 +59,7 @@ class GameObject:
         self.acceleration = acceleration
         self.shape_set = shape_set
 
-    def update(self, t_interval=0.05):
+    def update(self, t_interval=0.02):
         dx, vx = dynamic_update(
             self.velocity.linear.x, t_interval, self.acceleration.linear.x
         )
@@ -127,7 +127,7 @@ class Wall(GameObject):
 class Zone(GameObject):
     """Zone in game"""
 
-    def __init__(self, pose, side_length, zone_id):
+    def __init__(self, pose, side_length, zone_id, zone_type):
         velocity = Velocity2D(
             linear=Vector2D(0, 0),
             angular=Orient2D(0)
@@ -150,9 +150,80 @@ class Zone(GameObject):
                 ]
             )
         ]
+        zone_team = zone_id[0] # 'R' or 'B'
+
         GameObject.__init__(self, pose, velocity, acceleration, shape_set)
+        # ZoneMixin.__init__(self, zone_type, zone_team)
+        self.type = zone_type
+        self.team = zone_team 
         self.id = zone_id
         self.side_length = side_length
+        self.type = zone_type
+
+        self.clock = 0
+        self.defense_buff_timer = 0
+        self.defense_buff_ready = 1
+
+        self.supply_times_ready = 2
+        self.added_ammo = False
+        self.robot = None # cache the robot which is in this zone
+    
+    def is_robot_inside(self, robot):
+        in_left_border=(self.pose.position.x + robot.width/2 < robot.pose.position.x)
+        in_right_border=(self.pose.position.x + self.side_length > robot.pose.position.x + robot.width/2)
+        in_top_border=(self.pose.position.y > robot.pose.position.y + robot.length/2)
+        in_bottom_border=(self.pose.position.y - self.side_length < robot.pose.position.y - robot.length/2)
+        
+        return in_bottom_border and in_left_border and in_right_border and in_top_border
+    
+    def update(self, t_interval=0.02):
+        super(Zone, self).update(t_interval)
+
+        self.update_clock_and_buffs(t_interval)
+        
+    
+    def update_clock_and_buffs(self, t_interval):
+        self.clock += t_interval
+
+        if self.clock != 0 and self.clock > 60:
+            self.clock = 0
+            self.defense_buff_ready = 1
+            self.supply_times_ready = 2
+            print("buffs and supply refreshed.\nbuff: defense")
+
+    def is_friendly(self, robot):
+        return robot.id[0] == self.team
+
+    def handle_as_defense_zone(self, robot, t_interval):
+        if self.is_robot_inside(robot) and self.is_friendly(robot):
+            self.robot = robot
+            self.defense_buff_timer += t_interval
+            # print(self.buff_timer)
+            if self.defense_buff_timer > 5 and self.defense_buff_ready > 0:
+                print("\n### waited for 5 seconds.\n")
+                self.robot.start_buff_defense()
+                self.defense_buff_ready -= 1
+                self.defense_buff_timer = 0
+        elif self.robot is None or robot.id == self.robot.id:
+            # the robot left the self. 
+            self.defense_buff_timer = 0
+            self.robot = None
+    
+    def handle_as_supply_zone(self, robot, t_interval):
+        if self.is_robot_inside(robot):
+            self.robot = robot
+            if self.supply_times_ready > 0 and not self.added_ammo:
+                print("\n### adding ammo to <{}>\n".format(robot.id))
+                self.supply_times_ready -= 1
+                robot.ammo += 50
+                self.added_ammo = True
+            elif not self.added_ammo:
+                print("\n### no more ammo to supply.\n")
+                self.added_ammo = True
+        elif self.robot is None or robot.id == self.robot.id:
+            # this robot has left the zone.
+            self.added_ammo = False
+            self.robot = None
 
 
 class Bullet(GameObject):
@@ -184,7 +255,7 @@ class Bullet(GameObject):
 class Robot(GameObject):
     """Wall in game"""
 
-    def __init__(self, pose, length, width, robot_id, health=2000, ammo=0):
+    def __init__(self, pose, length, width, robot_id, health=2000, ammo=0, defense=25):
         velocity = Velocity2D(
             linear=Vector2D(0, 0),
             angular=Orient2D(0)
@@ -226,7 +297,26 @@ class Robot(GameObject):
         self.width = width
         self.id = robot_id
         self.health = health
+        self.cancelled_damage = 0
+        self.defense = defense
         self.ammo = ammo
+
+        self.defense_buff_timer = 0
+        
+    def start_buff_defense(self):
+        self.cancelled_damage = self.defense
+        print("buff start!")
+    
+    def update(self, t_interval=0.02):
+        super(Robot, self).update(t_interval)
+        if self.cancelled_damage != 0: # in defense buff
+            self.defense_buff_timer += t_interval
+        
+        if self.defense_buff_timer > 30:
+            print("buff ends!")
+            self.defense_buff_timer = 0
+            self.cancelled_damage = 0
+
 
     @property
     def radius(self):

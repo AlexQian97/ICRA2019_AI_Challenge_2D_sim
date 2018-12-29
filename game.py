@@ -56,7 +56,6 @@ class Game:
         )
         self.per_bullet_demage = map_config['config']['robot_per_bullet_demage']
         self.robot_top_health = map_config['config']['robot_top_health']
-
         # Create zones
         for zone in map_config['config']['zones']:
             self.add_game_object(
@@ -69,7 +68,8 @@ class Game:
                         orientation=Orient2D(math.radians(zone['orientation']))
                     ),
                     map_config['config']['zone_side_length'],
-                    zone['id']
+                    zone['id'],
+                    zone['type']
                 )
             )
 
@@ -100,7 +100,8 @@ class Game:
                     robot['length'], robot['width'],
                     robot['robot_id'],
                     map_config['config']['robot_top_health'],
-                    robot['ammo']
+                    robot['ammo'],
+                    map_config['config']['robot_defense']
                 )
             )
 
@@ -124,7 +125,6 @@ class Game:
                         radius=50
                     )
                 )
-
 
     def add_game_object(self, obj):
         if not isinstance(obj, GameObject):
@@ -236,6 +236,16 @@ class Game:
                 # Bullet collision check
                 collision = False
 
+                red_defense = 0
+                blue_defense = 0
+                for obj in self.game_objects:
+                    if type(obj) is Robot:
+                        if obj.cancelled_damage != 0:
+                            if obj.id[0] == 'R':
+                                red_defense = obj.cancelled_damage
+                            elif obj.id[0] == 'B':
+                                blue_defense = obj.cancelled_damage
+                
                 for another_obj in self.game_objects:
                     if type(another_obj) is Robot and \
                     game_obj.pose.position.find_distance(
@@ -243,8 +253,14 @@ class Game:
                     ) < another_obj.radius:
                         # Shot a robot
                         # Robot health deduction TODO
-                        print("Shot robot!!!!!!!!!!!")
-                        another_obj.health -= self.per_bullet_demage
+                        cancelled_damage = 0
+                        if another_obj.id[0] == 'R':
+                            cancelled_damage = red_defense
+                        elif another_obj.id[0] == 'B':
+                            cancelled_damage = blue_defense
+
+                        print("Shot robot, damage: {}".format(self.per_bullet_demage - cancelled_damage))
+                        another_obj.health -= (self.per_bullet_demage - cancelled_damage)
                         another_obj.health = max(another_obj.health, 0)  # Make not negtive health
                         collision = True
                         break
@@ -275,71 +291,7 @@ class Game:
                         for edge in edges:
                             if collision:
                                 break
-                            # print("Point:",
-                            #     Point2D(
-                            #         game_obj.last_pose.position.x,
-                            #         game_obj.last_pose.position.y
-                            #     )
-                            # )
-                            # print("Point:",
-                            #         game_obj.last_pose.position.x,
-                            #         game_obj.last_pose.position.y
-                            # )
-                            # print("Movement:",
-                            #     Point2D(
-                            #         (game_obj.pose-game_obj.last_pose).position.x,
-                            #         (game_obj.pose-game_obj.last_pose).position.y
-                            #     )
-                            # )
-                            # print("Movement:",
-                            #         (game_obj.pose-game_obj.last_pose).position.x,
-                            #         (game_obj.pose-game_obj.last_pose).position.y
-                            # )
-                            # print("Line:", edge)
-                            # print(
-                            #     "Result:",
-                            #     CollisionEngine2D.point_line_collision(
-                            #         point=Point2D(
-                            #             game_obj.last_pose.position.x,
-                            #             game_obj.last_pose.position.y
-                            #         ),
-                            #         point_movement=Point2D(
-                            #             (game_obj.pose-game_obj.last_pose).position.x,
-                            #             (game_obj.pose-game_obj.last_pose).position.y
-                            #         ),
-                            #         line_segment=edge,
-                            #         line_segment_movement=Point2D(0, 0)
-                            #     )
-                            # )
-                            #
-                            # point=Point2D(
-                            #     game_obj.last_pose.position.x,
-                            #     game_obj.last_pose.position.y
-                            # )
-                            # point_movement=Point2D(
-                            #     (game_obj.pose-game_obj.last_pose).position.x,
-                            #     (game_obj.pose-game_obj.last_pose).position.y
-                            # )
-                            # line_segment=edge
-                            # line_segment_movement=Point2D(0, 0)
-                            # point_moving_line_seg = LineSegment2D(
-                            #     point, point+point_movement
-                            # )
-                            # intersect_point = Line2D.find_intersection(
-                            #     point_moving_line_seg,
-                            #     line_segment
-                            # )
-                            # print('point_moving_line_seg', point_moving_line_seg)
-                            # print("intersetion Line2D:", intersect_point)
-                            #
-                            # intersect_point = LineSegment2D.find_intersection(
-                            #     point_moving_line_seg,
-                            #     line_segment
-                            # )
-                            # print("intersetion LineSegment2D:", intersect_point)
-                            #
-                            # print()
-
+                        
                             if CollisionEngine2D.point_line_collision(
                                 point=Point2D(
                                     game_obj.last_pose.position.x,
@@ -359,9 +311,22 @@ class Game:
                                 break
 
                         # exit()
-
+                
                 if collision:
                     remove_indexs.append(game_obj_index)
+            elif type(game_obj) is Zone:
+                zone = game_obj
+                # find friend robot
+                for another_obj in self.game_objects:
+                    if type(another_obj) is Robot:
+
+                        if zone.type == 'defense':
+                            zone.handle_as_defense_zone(another_obj, t_interval)
+                        elif zone.type == 'supply':
+                            zone.handle_as_supply_zone(another_obj, t_interval)
+                    
+
+
 
             game_obj_index += 1
 
