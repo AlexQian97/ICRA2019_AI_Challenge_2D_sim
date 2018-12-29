@@ -26,7 +26,6 @@
 import math
 from copy import deepcopy
 from physics import dynamic_update, Movement2D, Vector2D, Orient2D, Pose2D, Velocity2D, Acceleration2D
-from zones import ZoneMixin
 
 class Shape:
     """Base class of geometry shape"""
