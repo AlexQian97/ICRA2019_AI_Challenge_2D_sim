@@ -101,7 +101,7 @@ class Game:
                     robot['robot_id'],
                     map_config['config']['robot_top_health'],
                     robot['ammo'],
-                    map_config['config']['robot_defense']
+                    map_config['config']['robot_defence']
                 )
             )
 
@@ -236,15 +236,15 @@ class Game:
                 # Bullet collision check
                 collision = False
 
-                red_defense = 0
-                blue_defense = 0
+                red_defence = 0
+                blue_defence = 0
                 for obj in self.game_objects:
                     if type(obj) is Robot:
                         if obj.cancelled_damage != 0:
                             if obj.id[0] == 'R':
-                                red_defense = obj.cancelled_damage
+                                red_defence = obj.cancelled_damage
                             elif obj.id[0] == 'B':
-                                blue_defense = obj.cancelled_damage
+                                blue_defence = obj.cancelled_damage
                 
                 for another_obj in self.game_objects:
                     if type(another_obj) is Robot and \
@@ -255,9 +255,9 @@ class Game:
                         # Robot health deduction TODO
                         cancelled_damage = 0
                         if another_obj.id[0] == 'R':
-                            cancelled_damage = red_defense
+                            cancelled_damage = red_defence
                         elif another_obj.id[0] == 'B':
-                            cancelled_damage = blue_defense
+                            cancelled_damage = blue_defence
 
                         print("Shot robot, damage: {}".format(self.per_bullet_demage - cancelled_damage))
                         another_obj.health -= (self.per_bullet_demage - cancelled_damage)
@@ -320,8 +320,8 @@ class Game:
                 for another_obj in self.game_objects:
                     if type(another_obj) is Robot:
 
-                        if zone.type == 'defense':
-                            zone.handle_as_defense_zone(another_obj, t_interval)
+                        if zone.type == 'defence':
+                            zone.handle_as_defence_zone(another_obj, t_interval)
                         elif zone.type == 'supply':
                             zone.handle_as_supply_zone(another_obj, t_interval)
                     
