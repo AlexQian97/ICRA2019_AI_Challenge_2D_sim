@@ -166,6 +166,7 @@ class Zone(GameObject):
         self.defense_buff_ready = 1
 
         self.supply_times_ready = 2
+        self.added_ammo = False
         self.robot = None # cache the robot which is in this zone
     
     def is_robot_inside(self, robot):
@@ -187,12 +188,15 @@ class Zone(GameObject):
 
         if self.clock != 0 and self.clock > 60:
             self.clock = 0
-            self.defense_buff_ready += 1
+            self.defense_buff_ready = 1
             self.supply_times_ready = 2
             print("buffs and supply refreshed.\nbuff: defense")
 
+    def is_friendly(self, robot):
+        return robot.id[0] == self.team
+
     def handle_as_defense_zone(self, robot, t_interval):
-        if self.is_robot_inside(robot):
+        if self.is_robot_inside(robot) and self.is_friendly(robot):
             self.robot = robot
             self.defense_buff_timer += t_interval
             # print(self.buff_timer)
@@ -204,16 +208,23 @@ class Zone(GameObject):
         elif self.robot is None or robot.id == self.robot.id:
             # the robot left the self. 
             self.defense_buff_timer = 0
+            self.robot = None
     
     def handle_as_supply_zone(self, robot, t_interval):
         if self.is_robot_inside(robot):
-            if self.supply_times_ready > 0:
+            self.robot = robot
+            if self.supply_times_ready > 0 and not self.added_ammo:
                 print("\n### adding ammo to <{}>\n".format(robot.id))
                 self.supply_times_ready -= 1
                 robot.ammo += 50
-            else:
+                self.added_ammo = True
+            elif not self.added_ammo:
                 print("\n### no more ammo to supply.\n")
-
+                self.added_ammo = True
+        elif self.robot is None or robot.id == self.robot.id:
+            # this robot has left the zone.
+            self.added_ammo = False
+            self.robot = None
 
 
 class Bullet(GameObject):
